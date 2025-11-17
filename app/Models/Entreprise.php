@@ -47,5 +47,7 @@ class Entreprise extends Model
             'sslmode' => 'prefer',
         ]);
         // S'assure que la connexion par défaut pour les modèles de tenant est celle-ci.
+        \DB::purge('tenant'); 
+        \DB::reconnect('tenant');
     }
 }

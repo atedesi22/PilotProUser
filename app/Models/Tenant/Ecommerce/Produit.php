@@ -28,4 +28,9 @@ class Produit extends Model
     {
         return $this->hasMany(LigneCommandeOnline::class, 'id_produit', 'id_produit');
     }
+
+    public function imagePrincipale(): BelongsTo // <-- NOUVELLE RELATION MEDIA
+    {
+        return $this->belongsTo(Media::class, 'id_media_principal', 'id_media');
+    }
 }
