@@ -14,7 +14,7 @@ class Utilisateur extends Authenticatable
     public $incrementing = false;
     protected $keyType = 'string';
     
-    protected $fillable = ['id_utilisateur', 'nom_complet', 'email', 'mot_de_passe', 'id_role'];
+    protected $fillable = ['id_utilisateur', 'id_media_photo_profil', 'nom_complet', 'email', 'mot_de_passe', 'id_role'];
     protected $hidden = ['mot_de_passe'];
 
     // RELATION : Un utilisateur a un rôle
@@ -27,5 +27,10 @@ class Utilisateur extends Authenticatable
     public function employe()
     {
         return $this->hasOne(Employe::class, 'id_utilisateur', 'id_utilisateur');
+    }
+
+    public function photoProfil(): BelongsTo // <-- NOUVELLE RELATION
+    {
+        return $this->belongsTo(Media::class, 'id_media_photo_profil', 'id_media');
     }
 }

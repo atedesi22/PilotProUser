@@ -15,4 +15,9 @@ class Projet extends Model
     {
         return $this->hasMany(Tache::class, 'id_projet', 'id_projet');
     }
+
+    public function campagnes(): HasMany // Lien vers le nouveau module PilotCom
+    {
+        return $this->hasMany(CampagneMarketing::class, 'id_projet', 'id_projet');
+    }
 }
