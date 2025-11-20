@@ -11,9 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('media', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('medias', function (Blueprint $table) {
+            $table->uuid('id_media')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_fichier');
+            $table->string('type_media')->default('image'); // image, video, pdf, creation_canvas
+            $table->string('chemin_stockage'); // URL ou chemin S3/Cloud
+            $table->integer('taille_ko')->nullable();
+            $table->jsonb('tags')->nullable(); // Pour la recherche
+            $table->uuid('id_utilisateur_upload')->nullable(); // FK vers utilisateurs
             $table->timestamps();
+
+            $table->foreign('id_utilisateur_upload')
+                  ->references('id_utilisateur')
+                  ->on('utilisateurs')
+                  ->onDelete('set null');
         });
     }
 
@@ -22,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('media');
+        Schema::connection('tenant')->dropIfExists('medias');
     }
 };

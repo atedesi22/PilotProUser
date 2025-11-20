@@ -11,9 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('campagne_marketings', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('campagnes_marketing', function (Blueprint $table) {
+            $table->uuid('id_campagne')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_campagne');
+            $table->text('objectif')->nullable();
+            $table->date('date_debut');
+            $table->date('date_fin_prevue')->nullable();
+            $table->string('statut_campagne')->default('BROUILLON'); // BROUILLON, ACTIVE, TERMINEE
+            $table->uuid('id_projet')->nullable(); // FK vers projets
             $table->timestamps();
+
+            $table->foreign('id_projet')
+                  ->references('id_projet')
+                  ->on('projets')
+                  ->onDelete('set null');
         });
     }
 
@@ -22,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('campagne_marketings');
+        Schema::connection('tenant')->dropIfExists('campagnes_marketing');
     }
 };

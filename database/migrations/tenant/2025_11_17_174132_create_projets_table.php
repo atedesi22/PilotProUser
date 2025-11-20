@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projets', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('projets', function (Blueprint $table) {
+            $table->uuid('id_projet')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_projet');
+            $table->text('description')->nullable();
+            $table->date('date_debut');
+            $table->date('date_fin_estimee')->nullable();
+            $table->string('statut')->default('EN_COURS'); // EN_COURS, TERMINE, EN_ATTENTE
             $table->timestamps();
         });
     }
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projets');
+        Schema::connection('tenant')->dropIfExists('projets');
     }
 };
