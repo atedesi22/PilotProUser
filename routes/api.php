@@ -9,20 +9,13 @@ use App\Http\Controllers\Tenant\ProduitController; // Exemple de contrôleur de 
 // -----------------------------------------------------
 // Routes d'authentification Globale (pour pilotpro_main)
 // -----------------------------------------------------
-Route::post('/auth/global/login', [AuthControllerGlobal::class, 'login']);
-Route::post('/auth/global/register', [AuthControllerGlobal::class, 'register']); // Pour l'inscription de nouvelles entreprises
+// Routes globales (authentification, inscription d'entreprise)
+Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
+Route::post('/login', [App\Http\Controllers\Auth\LoginController::class, 'login']);
 
-// -------------------------------------------------------------------------
-// Routes d'authentification et d'API Spécifiques au Tenant (pour pilotpro_N)
-// -------------------------------------------------------------------------
-Route::middleware(['tenant.resolver'])->group(function () {
-    // Routes d'authentification DANS le tenant (si vous voulez un jeton distinct)
-    Route::post('/auth/tenant/login', [AuthControllerTenant::class, 'login']);
-    Route::post('/auth/tenant/logout', [AuthControllerTenant::class, 'logout'])->middleware('auth:api_tenant');
-
-    // Routes d'API du Tenant, protégées par le guard du tenant
-    Route::middleware('auth:api_tenant')->prefix('tenant')->group(function () {
-        Route::apiResource('produits', ProduitController::class);
-        // ... ajoutez ici toutes les routes de vos modules (finance, stock, etc.)
-    });
+// Groupe de routes nécessitant l'authentification ET la résolution du tenant
+Route::middleware(['auth:api', 'tenant.resolver'])->group(function () {
+    // Routes spécifiques au tenant (accèdent aux données du client)
+    Route::get('/tenant/produits', [ProduitController::class, 'index']);
+    // ... toutes vos autres routes pour les modules Finance, Stock, RH, CRM, PilotCom, etc.
 });
