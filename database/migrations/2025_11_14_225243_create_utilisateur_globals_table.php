@@ -11,9 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('utilisateur_globals', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant_main')->create('utilisateurs_globaux', function (Blueprint $table) {
+            $table->uuid('id_utilisateur_global')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('email')->unique();
+            $table->string('password'); // Le champ Laravel par défaut est 'password'
+            $table->uuid('id_entreprise'); // FK vers la table entreprises
+            $table->boolean('est_admin_super_pilotpro')->default(false); // Pour les admins de PilotPro eux-mêmes
+            
+            // Photo de profil (ID du média stocké dans la DB du tenant de l'entreprise)
+            $table->uuid('id_media_photo_profil')->nullable(); // FK logique
+
+            $table->rememberToken();
             $table->timestamps();
+
+            $table->foreign('id_entreprise')
+                  ->references('id_entreprise')
+                  ->on('entreprises')
+                  ->onDelete('cascade');
         });
     }
 
@@ -22,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('utilisateur_globals');
+        Schema::connection('tenant_main')->dropIfExists('utilisateurs_globaux');
     }
 };
