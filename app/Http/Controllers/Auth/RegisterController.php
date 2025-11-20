@@ -88,9 +88,23 @@ class RegisterController extends Controller
                 'entreprise' => $entreprise,
                 'access_token' => $token,
             ], Response::HTTP_CREATED);
-            
+
         } catch (\Throwable $th) {
             //throw $th;
+            // En cas d'erreur, annuler la transaction
+            DB::connection('tenant_main')->rollBack();
+
+            // Si la base de données du tenant a été créée mais les migrations ont échoué
+            // ou une autre erreur s'est produite, tente de supprimer la DB du tenant.
+            if (isset($entreprise) && $this->tenantService->dropTenantDatabase($entreprise)) {
+                Log::warning("Base de données du tenant '{$entreprise->db_name}' supprimée suite à une erreur d'onboarding.");
+            }
+
+            Log::error("Échec de l'inscription de l'entreprise: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'message' => 'Échec de l\'inscription.',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

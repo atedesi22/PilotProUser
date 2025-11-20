@@ -2,7 +2,11 @@
 
 namespace App\Models\Tenant\CRM;
 
+use App\Models\Tenant\CRM\Client;
+use App\Models\Tenant\CRM\Lead;
+use App\Models\Tenant\Utilisateur\Utilisateur;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Opportunite extends Model
 {
