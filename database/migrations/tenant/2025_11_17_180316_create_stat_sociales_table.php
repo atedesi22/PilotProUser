@@ -11,9 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stat_sociales', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('stats_sociales', function (Blueprint $table) {
+            $table->uuid('id_stat')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id_publication');
+            $table->date('date_collecte');
+            $table->integer('impressions')->default(0);
+            $table->integer('reach')->default(0);
+            $table->integer('engagement_total')->default(0);
+            $table->integer('clics_lien')->default(0);
+            $table->jsonb('donnees_brutes')->nullable(); // Données brutes de l'API sociale
             $table->timestamps();
+
+            $table->foreign('id_publication')
+                  ->references('id_publication')
+                  ->on('publications_sociales')
+                  ->onDelete('cascade');
         });
     }
 
@@ -22,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stat_sociales');
+        Schema::connection('tenant')->dropIfExists('stats_sociales');
     }
 };

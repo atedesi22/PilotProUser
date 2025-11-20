@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('clients', function (Blueprint $table) {
+            $table->uuid('id_client')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_complet');
+            $table->string('email')->unique()->nullable();
+            $table->string('telephone')->nullable();
+            $table->jsonb('adresse_facturation')->nullable(); // Adresse complète en JSONB
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::connection('tenant')->dropIfExists('clients');
     }
 };
