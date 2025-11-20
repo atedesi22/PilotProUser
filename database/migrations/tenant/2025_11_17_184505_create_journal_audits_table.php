@@ -11,9 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_audits', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::connection('tenant')->create('journal_audit', function (Blueprint $table) {
+            $table->bigIncrements('id_log'); // Clé primaire auto-incrémentée
+            $table->uuid('id_utilisateur')->nullable(); // FK vers utilisateurs
+            $table->string('action_type'); // CREATION, MODIFICATION, SUPPRESSION, CONNEXION
+            $table->string('table_cible')->nullable(); // Nom de la table affectée
+            $table->uuid('id_entite_cible')->nullable(); // ID de l'enregistrement affecté
+            $table->jsonb('ancienne_valeur_json')->nullable(); // État avant (pour MODIFICATION)
+            $table->jsonb('nouvelle_valeur_json')->nullable(); // État après (pour CREATION, MODIFICATION)
+            $table->timestamp('timestamp')->useCurrent();
+            $table->string('adresse_ip')->nullable(); // Pour des raisons de sécurité
+            $table->string('user_agent')->nullable(); // Navigateur/appareil
+
+            $table->index(['id_utilisateur', 'timestamp']); // Index pour les requêtes fréquentes
+            $table->index(['table_cible', 'id_entite_cible']); // Index pour le suivi d'entités spécifiques
+
+            $table->foreign('id_utilisateur')
+                  ->references('id_utilisateur')
+                  ->on('utilisateurs')
+                  ->onDelete('set null');
         });
     }
 
@@ -22,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_audits');
+        Schema::connection('tenant')->dropIfExists('journal_audit');
     }
 };
