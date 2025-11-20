@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('roles', function (Blueprint $table) {
+            $table->uuid('id_role')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_role')->unique();
+            $table->jsonb('permissions')->nullable(); // Permissions au format JSONB
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::connection('tenant')->dropIfExists('roles');
     }
 };

@@ -11,9 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('transactions', function (Blueprint $table) {
+            $table->uuid('id_transaction')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id_compte');
+            $table->text('description')->nullable();
+            $table->decimal('montant', 15, 2);
+            $table->string('type')->default('DEPENSE'); // DEPENSE, REVENU, TRANSFERT
+            $table->timestamp('date_transaction');
             $table->timestamps();
+
+            $table->foreign('id_compte')
+                  ->references('id_compte')
+                  ->on('comptes_financiers')
+                  ->onDelete('restrict');
         });
     }
 
@@ -22,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transactions');
+        Schema::connection('tenant')->dropIfExists('transactions');
     }
 };

@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('compte_financiers', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('comptes_financiers', function (Blueprint $table) {
+            $table->uuid('id_compte')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_compte');
+            $table->string('type_compte')->default('CASH'); // CASH, BANQUE, CARTE_CREDIT
+            $table->decimal('solde', 15, 2)->default(0.00);
+            $table->string('devise')->default('EUR');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('compte_financiers');
+        Schema::connection('tenant')->dropIfExists('comptes_financiers');
     }
 };
