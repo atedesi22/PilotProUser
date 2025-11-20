@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('entrepots', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('entrepots', function (Blueprint $table) {
+            $table->uuid('id_entrepot')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_entrepot');
+            $table->text('adresse')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('entrepots');
+        Schema::connection('tenant')->dropIfExists('entrepots');
     }
 };

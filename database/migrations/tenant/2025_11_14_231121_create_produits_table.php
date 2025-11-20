@@ -11,8 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produits', function (Blueprint $table) {
-            $table->id();
+        Schema::connection('tenant')->create('produits', function (Blueprint $table) {
+            $table->uuid('id_produit')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->string('nom_produit');
+            $table->text('description')->nullable();
+            $table->string('sku', 100)->unique()->nullable();
+            $table->decimal('prix_vente', 10, 2);
+            $table->decimal('prix_achat', 10, 2)->nullable();
+            $table->decimal('poids', 10, 2)->nullable();
+            $table->string('unite_mesure', 50)->nullable();
+            $table->boolean('est_vendable_online')->default(false);
             $table->timestamps();
         });
     }
@@ -22,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('produits');
+        Schema::connection('tenant')->dropIfExists('produits');
     }
 };

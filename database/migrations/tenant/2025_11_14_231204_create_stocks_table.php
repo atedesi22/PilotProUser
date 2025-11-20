@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('tenant')->create('mouvements_stock', function (Blueprint $table) {
-            $table->uuid('id_mouvement')->primary()->default(DB::raw('gen_random_uuid()'));
+        Schema::connection('tenant')->create('stocks', function (Blueprint $table) {
             $table->uuid('id_produit');
             $table->uuid('id_entrepot');
-            $table->integer('quantite_change'); // Peut être positif ou négatif
-            $table->string('type_mouvement'); // ENTREE, SORTIE, AJUSTEMENT, TRANSFERT
-            $table->text('raison')->nullable();
-            $table->timestamp('date_mouvement')->useCurrent();
+            $table->integer('quantite');
+            $table->timestamp('date_derniere_maj')->useCurrent();
             $table->timestamps();
+
+            $table->primary(['id_produit', 'id_entrepot']); // Clé primaire composite
 
             $table->foreign('id_produit')
                   ->references('id_produit')
@@ -37,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('tenant')->dropIfExists('mouvements_stock');
+        Schema::connection('tenant')->dropIfExists('stocks');
     }
 };
